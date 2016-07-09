@@ -79,12 +79,27 @@ var jColor = function () {
                 var jsName = jsNames[0] + jsNames[1].replace(/^\w/, function (char) {
                     return char.toUpperCase();
                 });
-                var canvas = board.querySelector('.jColor-' + name + ' canvas');
-                var style = getComputedStyle(canvas);
-                canvas.height = parseInt(style.height);
-                canvas.width = parseInt(style.width);
-                this[jsName + 'Ctx'] = canvas.getContext('2d');
-                this[jsName + 'Btn'] = board.querySelector('.jColor-' + name + ' span');
+
+                var blockDom = board.querySelector('.jColor-' + name);
+                var blockWidth = parseInt(getComputedStyle(blockDom).width);
+
+                var canvas = blockDom.querySelector('canvas');
+                if (canvas) {
+                    var style = getComputedStyle(canvas);
+                    canvas.height = parseInt(style.height);
+                    canvas.width = parseInt(style.width);
+                    this[jsName + 'Ctx'] = canvas.getContext('2d');
+                }
+
+                //
+                var button = blockDom.querySelector('span');
+                if (button) {
+                    button.style.left = blockWidth + 'px';
+                    this[jsName + 'Btn'] = {
+                        dom: button,
+                        max: blockWidth
+                    };
+                }
             }
         }
     }, {
@@ -92,14 +107,40 @@ var jColor = function () {
         value: function _initEvent() {
             var self = this;
             var btns = ['colorBarBtn', 'colorAlphaBtn'];
+
+            var activeBtn = null;
+            var mouseStartX = null;
+            var btnStartX = null;
+            var btnMax = null;
+
             btns.map(function (item) {
-                var dom = self[item];
+                var dom = self[item].dom;
+                var max = self[item].max;
                 dom.addEventListener('mousedown', function (e) {
-                    console.log(e.pageX);
+                    activeBtn = e.target;
+                    mouseStartX = e.pageX;
+                    btnStartX = parseInt(e.target.style.left);
+                    btnMax = max;
                 });
             });
 
-            window.addEventListener('mousemove', function (e) {});
+            window.addEventListener('mousemove', function (e) {
+                if (!activeBtn) return false;
+                var deltaX = e.pageX - mouseStartX;
+                var left = btnStartX + deltaX;
+                left = Math.max(0, left);
+                left = Math.min(btnMax, left);
+                var persent = left / btnMax;
+                activeBtn.style.left = left + 'px';
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+
+            window.addEventListener('mouseup', function (e) {
+                if (!activeBtn) return false;
+                activeBtn = startX = btnMax = null;
+            });
         }
     }, {
         key: '_initCanvas',
