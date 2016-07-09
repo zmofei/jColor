@@ -14,6 +14,7 @@ class jColor {
         this.options = options;
 
         this._initDoms();
+        this._initEvent();
         this._initCanvas();
     }
 
@@ -27,9 +28,17 @@ class jColor {
         var board = this.board = document.createElement('div');
         board.innerHTML = [
             '<div class="jColor-board">',
-            '<div><canvas class="jColor-color-board"></canvas></div>',
-            '<div><canvas class="jColor-color-bar"></canvas></div>',
-            '<div><canvas class="jColor-color-alpha"></canvas></div>',
+            '   <div class="jColor-color-board">',
+            '       <canvas></canvas>',
+            '   </div>',
+            '   <div class="jColor-color-bar">',
+            '       <span></span>',
+            '       <canvas></canvas>',
+            '   </div>',
+            '   <div class="jColor-color-alpha">',
+            '       <span></span>',
+            '       <canvas></canvas>',
+            '   </div>',
             '</div>'
         ].join('');
 
@@ -40,28 +49,42 @@ class jColor {
             var name = canvses[i];
             var jsNames = name.split('-');
             var jsName = jsNames[0] + jsNames[1].replace(/^\w/, function(char) {
-                return char.toUpperCase()
+                return char.toUpperCase();
             });
-            var canvas = board.querySelector('.jColor-' + name);
+            var canvas = board.querySelector('.jColor-' + name + ' canvas');
             var style = getComputedStyle(canvas);
             canvas.height = parseInt(style.height);
             canvas.width = parseInt(style.width);
             this[jsName + 'Ctx'] = canvas.getContext('2d');
+            this[jsName + 'Btn'] = board.querySelector('.jColor-' + name + ' span');
         }
+    }
+
+    _initEvent() {
+        var self = this;
+        var btns = ['colorBarBtn', 'colorAlphaBtn'];
+        btns.map(function(item) {
+            var dom = self[item];
+            dom.addEventListener('mousedown', function(e) {
+                console.log(e.pageX)
+            });
+        });
+
+        window.addEventListener('mousemove', function(e) {})
     }
 
     _initCanvas() {
         this._setColorBar();
         this._setColorBoard(0, 255, 255);
-        this._setColorAplha();
+        this._setColorAplha(0, 255, 255);
     }
 
     _setColorBar() {
-        var barCtx = this.colorBarCtx;
-        var width = barCtx.canvas.width;
-        var height = barCtx.canvas.height;
+        var ctx = this.colorBarCtx;
+        var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
 
-        var gradient = barCtx.createLinearGradient(0, 0, width, 0);
+        var gradient = ctx.createLinearGradient(0, 0, width, 0);
         gradient.addColorStop(0 / 6, 'rgb(255, 0, 0)');
         gradient.addColorStop(1 / 6, 'rgb(255, 255, 0)');
         gradient.addColorStop(2 / 6, 'rgb(0, 255, 0)');
@@ -69,14 +92,14 @@ class jColor {
         gradient.addColorStop(4 / 6, 'rgb(0, 0, 255)');
         gradient.addColorStop(5 / 6, 'rgb(255, 0, 255)');
         gradient.addColorStop(6 / 6, 'rgb(255, 0, 0)');
-        barCtx.fillStyle = gradient;
-        barCtx.fillRect(0, 0, width, height);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
     }
 
     _setColorBoard(r, g, b) {
-        var barCtx = this.colorBoardCtx;
-        var width = barCtx.canvas.width;
-        var height = barCtx.canvas.height;
+        var ctx = this.colorBoardCtx;
+        var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
 
         var deltaR = 255 - r;
         var deltaG = 255 - g;
@@ -86,10 +109,10 @@ class jColor {
         var stepG = deltaG / (width - 1);
         var stepB = deltaB / (width - 1);
 
-        barCtx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-        barCtx.fillRect(0, 0, width, height);
+        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        ctx.fillRect(0, 0, width, height);
 
-        var imgData = barCtx.getImageData(0, 0, width, height);
+        var imgData = ctx.getImageData(0, 0, width, height);
         var firstLine = []
         for (var i = 0; i < width; i++) {
             var R = 255 - i * stepR;
@@ -104,8 +127,6 @@ class jColor {
                 stepBByRow: B / height
             });
         };
-        console.log(firstLine)
-
         var count = 0;
         for (var i = 0; i < imgData.data.length; i += 4) {
             var lineNum = Math.floor(count / width);
@@ -120,29 +141,35 @@ class jColor {
             imgData.data[i + 2] = newB;
         }
 
-        barCtx.putImageData(imgData, 0, 0)
+        ctx.putImageData(imgData, 0, 0)
     }
 
-    _setColorAplha() {
-        var barCtx = this.colorAlphaCtx;
-        var width = barCtx.canvas.width;
-        var height = barCtx.canvas.height;
+    _setColorAplha(r, g, b) {
+        var ctx = this.colorAlphaCtx;
+        var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
 
         var line = 0;
         var row = 0;
         var gredWidth = 5;
 
-        barCtx.fillStyle = "#bbb";
+        ctx.fillStyle = "#bbb";
         while (line <= height / gredWidth) {
             while (row <= width / gredWidth) {
                 if ((line + row) % 2 == 0) {
-                    barCtx.fillRect(row * gredWidth, line * gredWidth, gredWidth, gredWidth);
+                    ctx.fillRect(row * gredWidth, line * gredWidth, gredWidth, gredWidth);
                 }
                 row++;
             }
             row = 0;
             line++;
         }
+
+        var gradient = ctx.createLinearGradient(0, 0, width, 0);
+        gradient.addColorStop(0, 'rgba(' + r + ',' + g + ', ' + b + ',0)');
+        gradient.addColorStop(1, 'rgba(' + r + ',' + g + ', ' + b + ',1)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height)
     }
 }
 
