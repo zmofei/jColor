@@ -1,0 +1,32 @@
+.jColor-target {
+    display: inline-block;
+    width: 30px;
+    height: 20px;
+    background: #000;
+    vertical-align: middle;
+}
+
+.jColor-board {
+    border: 1px solid #f4f4f4;
+    position: absolute;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 10, 0.2);
+    border: 1px solid #ccc;
+    overflow: hidden;
+    left: 50px;
+    top: 50px;
+}
+
+.jColor-color-board,
+.jColor-color-bar,
+.jColor-color-alpha {
+    width: 230px;
+    height: 120px;
+    background: #f4f4f4;
+}
+
+.jColor-color-bar,
+.jColor-color-alpha {
+    height: 10px;
+}
