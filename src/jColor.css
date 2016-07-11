@@ -16,6 +16,7 @@
     border: 1px solid #ccc;
     left: 50px;
     top: 50px;
+    display: none;
 }
 
 .jColor-arrow-up,
@@ -66,6 +67,11 @@
 .jColor-color-board {
     position: relative;
     overflow: hidden;
+}
+
+.jColor-color-board {
+    width: 230px;
+    height: 120px;
 }
 
 .jColor-color-bar,

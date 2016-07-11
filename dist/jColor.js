@@ -118,6 +118,7 @@ var jColor = function () {
                 var blockDom = board.querySelector('.jColor-' + name);
                 var blockWidth = parseInt(getComputedStyle(blockDom).width);
                 var blockHeight = parseInt(getComputedStyle(blockDom).height);
+                console.log(blockDom, getComputedStyle(blockDom).width);
 
                 var canvas = blockDom.querySelector('canvas');
                 if (canvas) {
@@ -223,11 +224,15 @@ var jColor = function () {
             this.target.addEventListener('click', function (e) {
                 var dom = e.target;
                 var offset = tools.getOffset(dom);
-                var top = offset.top + dom.offsetHeight + 7;
-                var left = offset.left + dom.offsetWidth / 2 - 20;
+                // let's say the color show on the buttom of the target
+                // TODO: the color can appear in left/top/right/bottom of the target,
+                //       depend the space of the window
+                var top = offset.top + dom.offsetHeight + 10;
+                var left = offset.left + dom.offsetWidth / 2 - 25;
                 self.board.style.left = left + 'px';
                 self.board.style.top = top + 'px';
-                self.board.querySelector('.jColor-arrow-up').show();
+                self.board.style.display = 'block';
+                self.board.querySelector('.jColor-arrow-up').style.display = 'block';
             });
 
             btns.map(function (item) {
@@ -246,7 +251,6 @@ var jColor = function () {
                     btnMaxWidth = maxWidth;
                     btnMaxHeight = maxHeight;
                     callback = cbfn;
-                    //
                     fitHandle(btnStartX, btnStartY, callback);
                 });
 
@@ -259,7 +263,6 @@ var jColor = function () {
                     btnMaxWidth = maxWidth;
                     btnMaxHeight = maxHeight;
                     callback = cbfn;
-                    //
                     fitHandle(btnStartX, btnStartY, callback);
                 });
             });
@@ -275,6 +278,21 @@ var jColor = function () {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
+            });
+
+            window.addEventListener('click', function (e) {
+                var dom = e.target;
+                var close = true;
+                while (dom) {
+                    if (dom == self.board || dom == self.target) {
+                        close = false;
+                        break;
+                    }
+                    dom = dom.parentElement;
+                }
+                if (close) {
+                    self.board.style.display = 'none';
+                }
             });
 
             function fitHandle(left, top, callback) {
@@ -415,6 +433,7 @@ var jColor = function () {
         key: '_getColorOnBoard',
         value: function _getColorOnBoard() {
             var pos = this.boardCursorPos;
+            // console.log(pos)
             var self = this;
             var topColor = this.barColor.map(function (color) {
                 var setp = 255 - color;
@@ -422,7 +441,9 @@ var jColor = function () {
             });
             var color = [];
             var finalColor = topColor.map(function (_color, index) {
+
                 var _color = parseInt(_color * (1 - pos.top));
+
                 color[index] = _color;
                 return _color;
             });
