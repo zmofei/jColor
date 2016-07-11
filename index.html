@@ -17,10 +17,9 @@
 
 
     <h2>Demo</h2>
-    <div>
-        <span>jColorDemo-color</span>
-        <span id="color"></span>
-    </div>
+
+    <p>jColorDemo-color</p>
+    <p><span id="color"></span></p>
 
     <pre><code data-language="html">
 <span id="color"></span>        
@@ -30,10 +29,9 @@ var dom = document.getElementById('color');
 new jColor(dom);
     </code></pre>
 
-    <div>
-        <span>jColorDemo-range</span>
-        <span id="range"></span>
-    </div>
+
+    <p>jColorDemo-range</p>
+    <p id="range"></p>
 
     <pre><code data-language="html">
 <span id="range"></span>        
@@ -46,10 +44,8 @@ new jColor(dom, {
     </code></pre>
 
 
-    <div>
-        <span>jColorDemo - default color</span>
-        <span id="defaultColor"></span>
-    </div>
+    <p>jColorDemo - default color</p>
+    <p id="defaultColor"></p>
 
     <pre><code data-language="javascript">
 var dom = document.getElementById('color');
@@ -60,10 +56,8 @@ new jColor(dom, {
 
 
 
-    <div>
-        <span>jColorDemo - listen change</span>
-        <span id="listenChange"></span>
-    </div>
+    <p>jColorDemo - listen change</p>
+    <p id="listenChange"></p>
 
     <pre><code data-language="javascript">
 var dom = document.getElementById('color');
@@ -72,10 +66,8 @@ new jColor(dom, {
 });
     </code></pre>
 
-    <div>
-        <span>jColorDemo - choosed</span>
-        <span id="choosed"></span>
-    </div>
+    <p>jColorDemo - choosed</p>
+    <p id="choosed"></p>
 
     <pre><code data-language="javascript">
 var dom = document.getElementById('color');
@@ -104,8 +96,8 @@ new jColor(dom, {
         var listenChange = document.getElementById('listenChange');
         new jColor(listenChange);
 
-        var listenChange = document.getElementById('choosed');
-        new jColor(listenChange);
+        var choosed = document.getElementById('choosed');
+        new jColor(choosed);
     </script>
 
     <script src="src/javascript/rainbow.js"></script>
