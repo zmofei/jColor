@@ -4,26 +4,111 @@
     <meta charset="utf-8" />
     <title>jColor</title>
     <link type="text/css" rel="stylesheet" href="src/jColor.css" />
+    <link type="text/css" rel="stylesheet" href="src/css/rainbow.css" />
+    <link type="text/css" rel="stylesheet" href="src/css/page.css" />
     <script src="dist/jColor.js"></script>
 </head>
 
 <body>
+    <div class="title">
+        <span>j</span><em style="color:#00beff">C</em><em style="color:#f777f6">o</em><em style="color:#44ff00">l</em><em style="color:#ffc300">o</em><em style="color:#ee3cf5">r</em><span style="color:#ccc">.js</span>
+    </div>
+    <div class="sub-title"> the javascript color picker, friendly, lightwidht and easily</div>
+
+
+    <h2>Demo</h2>
     <div>
         <span>jColorDemo-color</span>
         <span id="color"></span>
     </div>
 
+    <pre><code data-language="html">
+<span id="color"></span>        
+    </code></pre>
+    <pre><code data-language="javascript">
+var dom = document.getElementById('color');
+new jColor(dom);
+    </code></pre>
+
     <div>
         <span>jColorDemo-range</span>
         <span id="range"></span>
     </div>
+
+    <pre><code data-language="html">
+<span id="range"></span>        
+    </code></pre>
+    <pre><code data-language="javascript">
+var dom = document.getElementById('color');
+new jColor(dom, {
+    type: 'range'
+});
+    </code></pre>
+
+
+    <div>
+        <span>jColorDemo - default color</span>
+        <span id="defaultColor"></span>
+    </div>
+
+    <pre><code data-language="javascript">
+var dom = document.getElementById('color');
+new jColor(dom, {
+    type: 'range'
+});
+    </code></pre>
+
+
+
+    <div>
+        <span>jColorDemo - listen change</span>
+        <span id="listenChange"></span>
+    </div>
+
+    <pre><code data-language="javascript">
+var dom = document.getElementById('color');
+new jColor(dom, {
+    type: 'range'
+});
+    </code></pre>
+
+    <div>
+        <span>jColorDemo - choosed</span>
+        <span id="choosed"></span>
+    </div>
+
+    <pre><code data-language="javascript">
+var dom = document.getElementById('color');
+new jColor(dom, {
+    type: 'range'
+});
+    </code></pre>
+
     <script>
         var dom = document.getElementById('color');
-        new jColor(dom);
+        new jColor(dom, {
+            change: function(color) {
+                console.log('change', color)
+            },
+            choosed: function(color) {
+                console.log('choosed', color)
+            },
+        });
 
         var range = document.getElementById('range');
         new jColor(range);
+
+        var defaultColor = document.getElementById('defaultColor');
+        new jColor(defaultColor);
+
+        var listenChange = document.getElementById('listenChange');
+        new jColor(listenChange);
+
+        var listenChange = document.getElementById('choosed');
+        new jColor(listenChange);
     </script>
+
+    <script src="src/javascript/rainbow.js"></script>
 </body>
 
 </html>

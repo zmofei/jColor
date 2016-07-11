@@ -33,13 +33,16 @@ class jColor {
         // console
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        // get the color ;
+        this.options && this.options.change && this.options.change(this.finalColor);
     }
 
     _initDoms() {
         // init target
         var target = this.target = document.createElement('canvas');
         target.className = 'jColor-target';
-        dom.appendChild(target);
+        this.dom.appendChild(target);
 
         // init color board
         var board = document.createElement('div');
@@ -181,8 +184,10 @@ class jColor {
         var btnMaxWidth = null;
         var btnMaxHeight = null;
         var callback = null;
+        var activeBoard = false;
 
         this.target.addEventListener('click', function(e) {
+            activeBoard = true;
             var dom = e.target;
             var offset = tools.getOffset(dom);
             // let's say the color show on the buttom of the target
@@ -241,7 +246,8 @@ class jColor {
             return false;
         });
 
-        window.addEventListener('click', function(e) {
+        window.addEventListener('mousedown', function(e) {
+            if (!activeBoard) return false;
             var dom = e.target;
             var close = true;
             while (dom) {
@@ -253,6 +259,8 @@ class jColor {
             }
             if (close) {
                 self.board.style.display = 'none';
+                self.options && self.options.change && self.options.choosed(self.finalColor);
+                activeBoard = false;
             }
         });
 
