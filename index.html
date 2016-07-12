@@ -32,19 +32,6 @@ var dom = document.getElementById('color');
 new jColor(dom);
     </code></pre>
 
-    <p>jColorDemo-range</p>
-    <p><span id="range"></span></p>
-
-    <pre><code data-language="html">
-<span id="range"></span>        
-    </code></pre>
-    <pre><code data-language="javascript">
-var dom = document.getElementById('color');
-new jColor(dom, {
-    type: 'range'
-});
-    </code></pre>
-
     <p>jColorDemo - default color</p>
     <p><span id="defaultColor"></span></p>
 
@@ -102,11 +89,7 @@ new jColor(choosed, {
         // default
         var dom = document.getElementById('color');
         new jColor(dom);
-
-        // range
-        var range = document.getElementById('range');
-        new jColor(range);
-
+        
         // default color 
         var defaultColor = document.getElementById('defaultColor');
         var _defaultColor = new jColor(defaultColor, {
