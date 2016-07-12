@@ -4,6 +4,7 @@ var tools = new Tools();
 
 class jColor {
     constructor(dom, options) {
+
         var appName = this.appName = this.constructor.name;
 
         if (!dom) {
@@ -11,31 +12,113 @@ class jColor {
         };
 
         this.dom = dom;
-        this.options = options;
+        this.options = options || {};
 
         this.finalColor = [255, 0, 0, 1];
+
         this.boardCursorPos = {
             left: 1,
             top: 0
         };
-        this.barColor = [255, 0, 0];
+        this.barPos = {
+            left: 1
+        }
 
         this._initDoms();
         this._initEvent();
         this._initCanvas();
+        this.set(this.options.value, false);
     }
 
-    _setFinalColor(color) {
-        this.finalColor = color;
-        var ctx = this.target.getContext('2d');
+    set(color, update) {
+        if (!color) return false;
+        var self = this;
+        var finalColor = color.slice();
+        var color = color;
+        color.splice(3, 1);
+        /*
+            _____________________________  C[255,63,0]
+           |     B[255,175,149]          |    ↑   ↑
+           |                ↑ Min(to 0)  |  color bar's left
+           |                             |
+           |     A[153,105,90]           |
+           |        ↑ Max(to 255)        |
+            -----------------------------
+        */
 
+        // 1(A). get the board cursor's top
+        // top = 1 - maxValue / 255;
+        var max = {
+            value: -Infinity,
+            index: 0
+        };
+        color.map(function(item, index) {
+            if (item > max.value && index < 3) {
+                max.value = item;
+                max.index = index;
+            }
+        });
+        var borderCurosrTop = 1 - max.value / 255;
+        console.log(max.value)
+        this.boardCursorPos.top = borderCurosrTop;
+        color[max.index] = 255;
+        // 2(B). get the board cursor's left
+        // left = 1 - minValue / 255;
+        var min = {
+            value: Infinity,
+            index: 0,
+        }
+        color.map(function(item, index) {
+            if (item < min.value && index < 3) {
+                min.value = item;
+                min.index = index;
+            }
+        });
+        var borderCurosrLeft = 1 - min.value / 255;
+        this.boardCursorPos.left = borderCurosrLeft;
+        color[min.index] = 0;
+
+        // 3(C). get the color bar's left
+        // this.finalColor = options.value[3];
+        var barLeft = this._colorToBarLeft(color);
+        this.barPos.left = barLeft;
+
+        //
+        var btns = ['colorBoard', 'colorBar', 'colorAlpha'];
+        btns.map(function(value) {
+            var obj = self[value + 'Btn'];
+            var dom = obj.dom;
+            var canvas = obj.canvas;
+            switch (value) {
+                case 'colorBoard':
+                    dom.style.left = canvas.width * self.boardCursorPos.left + 'px';
+                    dom.style.top = canvas.height * self.boardCursorPos.top + 'px';
+                    break;
+                case 'colorBar':
+                    dom.style.left = canvas.width * self.barPos.left + 'px';
+                    break;
+                case 'colorAlpha':
+                    dom.style.left = canvas.width * finalColor[3] + 'px';
+                    break;
+            }
+        });
+        self._setColorBoard();
+        self._setFinalColor(finalColor, !update);
+    }
+
+    _setFinalColor(color, init) {
+        var ctx = this.target.getContext('2d');
         ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
         // console
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        // get the color ;
-        this.options && this.options.change && this.options.change(this.finalColor);
+        if (!init) {
+            this.finalColor = color;
+            // get the color ;
+            this.options && this.options.change && this.options.change(this.finalColor);
+        }
+
     }
 
     _initDoms() {
@@ -69,6 +152,7 @@ class jColor {
 
         this.board = board.querySelector('.jColor-board');
 
+
         document.body.appendChild(board);
 
         var canvses = ['color-board', 'color-bar', 'color-alpha'];
@@ -82,8 +166,6 @@ class jColor {
             var blockDom = board.querySelector('.jColor-' + name);
             var blockWidth = parseInt(getComputedStyle(blockDom).width);
             var blockHeight = parseInt(getComputedStyle(blockDom).height);
-            console.log(blockDom, getComputedStyle(blockDom).width);
-
 
             var canvas = blockDom.querySelector('canvas');
             if (canvas) {
@@ -95,15 +177,14 @@ class jColor {
 
             //
             var button = blockDom.querySelector('span');
-            if (button) {
-                this[jsName + 'Btn'] = {
-                    dom: button,
-                    maxWidth: blockWidth,
-                    maxHeight: name == 'color-board' ? blockHeight : 0,
-                };
-            }
+            this[jsName + 'Btn'] = {
+                canvas: canvas,
+                dom: button,
+                maxWidth: blockWidth,
+                maxHeight: name == 'color-board' ? blockHeight : 0,
+            };
         }
-        this._setFinalColor(this.finalColor);
+        this._setFinalColor(this.finalColor, true);
     }
 
     _initEvent() {
@@ -112,57 +193,13 @@ class jColor {
             name: 'colorBoard',
             cb: function(pos) {
                 self.boardCursorPos = pos;
-                self._getColorOnBoard();
                 self._setColorAplha();
+                self._getColorOnBoard();
             }
         }, {
             name: 'colorBar',
             cb: function(pos) {
-                // var pos = self.boardCursorPos;
-                var step = (1 / 6);
-                var level = Math.floor(pos.left / step);
-                var leverPresent = pos.left % step / step;
-                if (level > 5) {
-                    level = 0;
-                    leverPresent = 0;
-                }
-
-                var r = g = b = 0;
-                switch (level) {
-                    case 0:
-                        r = 255;
-                        g = 255 * leverPresent;
-                        b = 0;
-                        break;
-                    case 1:
-                        r = 255 * (1 - leverPresent);
-                        g = 255;
-                        b = 0;
-                        break;
-                    case 2:
-                        r = 0;
-                        g = 255;
-                        b = 255 * leverPresent;
-                        break;
-                    case 3:
-                        r = 0;
-                        g = 255 * (1 - leverPresent);
-                        b = 255;
-                        break;
-                    case 4:
-                        r = 255 * leverPresent;
-                        g = 0;
-                        b = 255;
-                        break;
-                    case 5:
-                    default:
-                        r = 255;
-                        g = 0;
-                        b = 255 * (1 - leverPresent);
-                        break;
-                }
-
-                self.barColor = [parseInt(r), parseInt(g), parseInt(b)]
+                self.barPos.left = pos.left;
 
                 self._setColorBoard();
                 self._setColorAplha();
@@ -171,8 +208,8 @@ class jColor {
         }, {
             name: 'colorAlpha',
             cb: function(pos) {
-                // console.log(present)
-                self._setFinalColor([self.finalColor[0], self.finalColor[1], self.finalColor[2], pos.left]);
+                self.finalColor.splice(3, 1, pos.left);
+                self._setFinalColor(self.finalColor);
             }
         }];
 
@@ -259,7 +296,7 @@ class jColor {
             }
             if (close) {
                 self.board.style.display = 'none';
-                self.options && self.options.change && self.options.choosed(self.finalColor);
+                self.options && self.options.choosed && self.options.choosed(self.finalColor);
                 activeBoard = false;
             }
         });
@@ -312,9 +349,11 @@ class jColor {
     }
 
     _setColorBoard() {
-        var r = this.barColor[0];
-        var g = this.barColor[1];
-        var b = this.barColor[2];
+        var barColor = this._getColorOnBar();
+        // console.log(barColor)
+        var r = barColor[0];
+        var g = barColor[1];
+        var b = barColor[2];
         var ctx = this.colorBoardCtx;
         var width = ctx.canvas.width;
         var height = ctx.canvas.height;
@@ -399,19 +438,138 @@ class jColor {
         var pos = this.boardCursorPos;
         // console.log(pos)
         var self = this;
-        var topColor = this.barColor.map((color) => {
+        var topColor = this._getColorOnBar().map((color) => {
             var setp = 255 - color;
             return parseInt(color + setp * (1 - pos.left));
         });
         var color = [];
         var finalColor = topColor.map((_color, index) => {
-
             var _color = parseInt(_color * (1 - pos.top));
-
             color[index] = _color
             return _color;
         });
         this._setFinalColor([color[0], color[1], color[2], this.finalColor[3]]);
+    }
+
+    _getColorOnBar() {
+        var present = this.barPos.left;
+        var step = (1 / 6);
+        var level = Math.floor(present / step);
+        var leverPresent = present % step / step;
+
+        if (level > 5) {
+            level = 0;
+            leverPresent = 0;
+        }
+
+        var r = g = b = 0;
+        switch (level) {
+            case 0:
+                r = 255;
+                g = 255 * leverPresent;
+                b = 0;
+                break;
+            case 1:
+                r = 255 * (1 - leverPresent);
+                g = 255;
+                b = 0;
+                break;
+            case 2:
+                r = 0;
+                g = 255;
+                b = 255 * leverPresent;
+                break;
+            case 3:
+                r = 0;
+                g = 255 * (1 - leverPresent);
+                b = 255;
+                break;
+            case 4:
+                r = 255 * leverPresent;
+                g = 0;
+                b = 255;
+                break;
+            case 5:
+            default:
+                r = 255;
+                g = 0;
+                b = 255 * (1 - leverPresent);
+                break;
+        }
+        return [parseInt(r), parseInt(g), parseInt(b)]
+    }
+
+    _colorToBarLeft(color) {
+        var map = {};
+        color.map(function(value, index) {
+            map[value == '255' ? 'max' : value == '0' ? 'min' : 'middle'] = index;
+        });
+
+        /*
+               max=0           max=1         max=1          max=2          max=2           max=0
+               mid=1           mid=0         mid=2          mid=1          mid=0           mid=2
+                 ↓               ↓             ↓              ↓              ↓               ↓  
+          ┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+        1,0,0          1,1,0          0,1,0          0,1,1          0,0,1          1,0,1          1,0,0
+        */
+
+        var step = (1 / 6);
+        var basicPresent;
+        var stepPresent;
+        var present;
+        if (map.max == 0) {
+            switch (map.middle) {
+                case 1:
+                    basicPresent = 0 * step;
+                    stepPresent = (color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                case 2:
+                    basicPresent = 5 * step;
+                    stepPresent = (1 - color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                default:
+                    present = 0;
+                    break;
+            }
+        } else if (map.max == 1) {
+            switch (map.middle) {
+                case 0:
+                    basicPresent = 1 * step;
+                    stepPresent = (1 - color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                case 2:
+                    basicPresent = 2 * step;
+                    stepPresent = (color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                default:
+                    present = 2 * step;
+                    break;
+            }
+        } else if (map.max == 2) {
+            switch (map.middle) {
+                case 0:
+                    basicPresent = 4 * step;
+                    stepPresent = (color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                case 1:
+                    basicPresent = 3 * step;
+                    stepPresent = (1 - color[map.middle] / 255) * step;
+                    present = basicPresent + stepPresent;
+                    break;
+                default:
+                    present = 2 * step;
+                    break;
+            }
+        } else {
+            present = 0;
+        }
+
+        return present;
     }
 }
 

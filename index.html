@@ -29,9 +29,8 @@ var dom = document.getElementById('color');
 new jColor(dom);
     </code></pre>
 
-
     <p>jColorDemo-range</p>
-    <p id="range"></p>
+    <p><span id="range"></span></p>
 
     <pre><code data-language="html">
 <span id="range"></span>        
@@ -43,61 +42,97 @@ new jColor(dom, {
 });
     </code></pre>
 
-
     <p>jColorDemo - default color</p>
-    <p id="defaultColor"></p>
+    <p><span id="defaultColor"></span></p>
 
     <pre><code data-language="javascript">
-var dom = document.getElementById('color');
-new jColor(dom, {
-    type: 'range'
-});
+var defaultColor = document.getElementById('defaultColor');
+    new jColor(defaultColor, {
+        value: [255, 255, 0, 0.5]
+    });
     </code></pre>
 
-
-
     <p>jColorDemo - listen change</p>
-    <p id="listenChange"></p>
+    <p>
+        <span id="listenChange"></span>
+        <span id="listenChange-text"></span>
+    </p>
 
+
+    <pre><code data-language="html">
+<span id="listenChange"></span>
+<span id="listenChange-text"></span>  
+    </code></pre>
     <pre><code data-language="javascript">
-var dom = document.getElementById('color');
-new jColor(dom, {
-    type: 'range'
+var listenChange = document.getElementById('listenChange');
+var listenChangeText = document.getElementById('listenChange-text');
+
+new jColor(listenChange, {
+    change: function(color) {
+        listenChangeText.textContent = color.toString();
+    }
 });
     </code></pre>
 
     <p>jColorDemo - choosed</p>
-    <p id="choosed"></p>
+    <p>
+        <span id="choosed"></span>
+        <span id="choosed-text"></span>
+    </p>
 
+    <pre><code data-language="html">
+<span id="choosed"></span>
+<span id="choosed-text"></span>      
+    </code></pre>
     <pre><code data-language="javascript">
-var dom = document.getElementById('color');
-new jColor(dom, {
-    type: 'range'
+var choosed = document.getElementById('choosed');
+var choosedText = document.getElementById('choosed-text');
+
+new jColor(choosed, {
+    choosed: function(color) {
+        choosedText.textContent = color.toString();
+    }
 });
     </code></pre>
 
     <script>
+        // default
         var dom = document.getElementById('color');
-        new jColor(dom, {
-            change: function(color) {
-                console.log('change', color)
-            },
-            choosed: function(color) {
-                console.log('choosed', color)
-            },
-        });
+        new jColor(dom);
 
+        // range
         var range = document.getElementById('range');
         new jColor(range);
 
+        // default color 
         var defaultColor = document.getElementById('defaultColor');
-        new jColor(defaultColor);
+        var _defaultColor = new jColor(defaultColor, {
+            value: [127, 17, 27, 0.5],
+            change: function(color) {
+                console.log('defaultColor change', color);
+            },
+            choosed: function(color) {
+                console.log('defaultColor choosed', color);
+            }
+        });
 
+        // change
         var listenChange = document.getElementById('listenChange');
-        new jColor(listenChange);
+        var listenChangeText = document.getElementById('listenChange-text');
+        new jColor(listenChange, {
+            change: function(color) {
+                listenChangeText.textContent = color.toString();
+            }
+        });
 
+        // choosed
         var choosed = document.getElementById('choosed');
-        new jColor(choosed);
+        var choosedText = document.getElementById('choosed-text');
+        new jColor(choosed, {
+            choosed: function(color) {
+                choosedText.textContent = color.toString();
+            }
+        });
     </script>
 
     <script src="src/javascript/rainbow.js"></script>
