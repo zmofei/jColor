@@ -1,4 +1,5 @@
 import Tools from './tools.js';
+import CSS from './jColor.css'
 
 var tools = new Tools();
 
@@ -46,34 +47,35 @@ class jColor {
             -----------------------------
         */
 
-        // 1(A). get the board cursor's top
-        // top = 1 - maxValue / 255;
         var max = {
             value: -Infinity,
             index: 0
         };
+        var min = {
+            value: Infinity,
+            index: 0,
+        }
         color.map(function(item, index) {
             if (item > max.value && index < 3) {
                 max.value = item;
                 max.index = index;
             }
         });
-        var borderCurosrTop = 1 - max.value / 255;
-        console.log(max.value)
-        this.boardCursorPos.top = borderCurosrTop;
-        color[max.index] = 255;
-        // 2(B). get the board cursor's left
-        // left = 1 - minValue / 255;
-        var min = {
-            value: Infinity,
-            index: 0,
-        }
         color.map(function(item, index) {
             if (item < min.value && index < 3) {
                 min.value = item;
                 min.index = index;
             }
         });
+
+        // 1(A). get the board cursor's top
+        // top = 1 - maxValue / 255;
+        var borderCurosrTop = 1 - max.value / 255;
+        this.boardCursorPos.top = borderCurosrTop;
+        color[max.index] = 255;
+
+        // 2(B). get the board cursor's left
+        // left = 1 - minValue / 255;
         var borderCurosrLeft = 1 - min.value / 255;
         this.boardCursorPos.left = borderCurosrLeft;
         color[min.index] = 0;
@@ -462,7 +464,9 @@ class jColor {
             leverPresent = 0;
         }
 
-        var r = g = b = 0;
+        var r = 0;
+        var g = 0;
+        var b = 0;
         switch (level) {
             case 0:
                 r = 255;
@@ -506,11 +510,16 @@ class jColor {
         });
 
         /*
+            0:R 1:G 2:B
+               * R=255            
+               * G=0-255
+               * B=0
                max=0           max=1         max=1          max=2          max=2           max=0
                mid=1           mid=0         mid=2          mid=1          mid=0           mid=2
                  ↓               ↓             ↓              ↓              ↓               ↓  
           ┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
         1,0,0          1,1,0          0,1,0          0,1,1          0,0,1          1,0,1          1,0,0
+        255,0,0        255,255,0      0,255,0        0,255,255      0,0,255        255,0,255      255,0,0
         */
 
         var step = (1 / 6);

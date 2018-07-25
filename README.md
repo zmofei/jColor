@@ -2,4 +2,4 @@
 the javascript color picker
 
 
-[Demo](https://zmofei.github.io/jColor/) 
+[Demo](https://zmofei.github.io/jColor/dist/) 
