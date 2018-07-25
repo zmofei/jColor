@@ -1,5 +1,5 @@
 import Tools from './tools.js';
-import CSS from './jColor.css'
+import CSS from './jColor.scss';
 
 var tools = new Tools();
 
