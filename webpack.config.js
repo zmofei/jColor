@@ -18,7 +18,9 @@ module.exports = {
             }
         ]
     },
-    output: {
+    output: { 
+        library: 'jColor',
+        libraryTarget: 'umd',
         path: path.resolve(__dirname, 'dist'),
         filename: 'jColor.js'
     },

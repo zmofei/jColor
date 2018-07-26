@@ -32,11 +32,12 @@ class jColor {
     }
 
     set(color, update) {
+        // console.warn(711, this.finalColor)
         if (!color) return false;
         var self = this;
         var finalColor = color.slice();
         var color = color;
-        color.splice(3, 1);
+        var alpha = color.splice(3, 1);
         /*
             _____________________________  C[255,63,0]
            |     B[255,175,149]          |    ↑   ↑
@@ -60,8 +61,6 @@ class jColor {
                 max.value = item;
                 max.index = index;
             }
-        });
-        color.map(function(item, index) {
             if (item < min.value && index < 3) {
                 min.value = item;
                 min.index = index;
@@ -115,12 +114,11 @@ class jColor {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+        this.finalColor = color;
         if (!init) {
-            this.finalColor = color;
             // get the color ;
             this.options && this.options.change && this.options.change(this.finalColor);
         }
-
     }
 
     _initDoms() {
@@ -202,7 +200,6 @@ class jColor {
             name: 'colorBar',
             cb: function(pos) {
                 self.barPos.left = pos.left;
-
                 self._setColorBoard();
                 self._setColorAplha();
                 self._getColorOnBoard();
@@ -505,10 +502,9 @@ class jColor {
 
     _colorToBarLeft(color) {
         var map = {};
-        color.map(function(value, index) {
+        color.forEach(function(value, index) {
             map[value == '255' ? 'max' : value == '0' ? 'min' : 'middle'] = index;
         });
-
         /*
             0:R 1:G 2:B
                * R=255            
@@ -583,3 +579,5 @@ class jColor {
 }
 
 window.jColor = jColor;
+
+export default jColor;
