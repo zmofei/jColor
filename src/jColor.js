@@ -2,7 +2,7 @@ import Tools from './tools.js';
 import CSS from './jColor.scss';
 
 var tools = new Tools();
-
+// console.log(1)
 class jColor {
     constructor(dom, options) {
 
